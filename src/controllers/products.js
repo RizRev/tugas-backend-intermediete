@@ -1,6 +1,7 @@
 const ModelProduct = require("../model/products");
 const { response } = require("../middleware/common");
 require("dotenv").config();
+const client = require("../config/redis")
 //     update: (req,res,next)=>{
 // const ProductController = {
 //         ModelProduct.updateData(req.params.id,req.body)
@@ -101,7 +102,9 @@ const ProductController = {
     },
     getProductDetail: (req,res,next)=>{ 
         ModelProduct.selectDatabyId(req.params.id)
-        .then((result) => response(res, 200, true, result.rows,"get data detail success"))
+        .then((result) => {
+        client.setEx(`product/${req.params.id}`,60*60,JSON.stringify(result.rows))
+        response(res, 200, true, result.rows,"get data detail success")})
         .catch((err) => response(res, 404, false, err.routine,"get data detail fail"));
     },}
 
