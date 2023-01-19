@@ -44,7 +44,9 @@ ALTER TABLE transactions ADD username VARCHAR(255) AFTER id;
 
 
 
+SELECT name,price FROM products ORDER BY price desc;
 
+SELECT * FROM products WHERE name ILIKE 'bear'
 
 
 

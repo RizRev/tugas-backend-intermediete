@@ -5,8 +5,8 @@ const selectData = () => {
 }
 
 const insertData = (data) => {
-    const {id,name} = data;
-    return Pool.query(`INSERT INTO category(id,name) VALUES(${id},'${name}')`);
+    const {name,users_id} = data;
+    return Pool.query(`INSERT INTO category(name,users_id) VALUES('${name}','${users_id}')`);
 }
 
 const updateData = (id,data) => {

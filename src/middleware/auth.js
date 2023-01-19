@@ -9,6 +9,13 @@ const role = (req,res,next) => {
     return response(res, 404, false, null,"wrong role users")
 }
 
+const roleToko = (req,res,next) => {
+    if(req.payload.role == 'toko'){
+        return next()
+    }
+    return response(res, 404, false, null,"wrong role users")
+}
+
 const protect = (req,res,next) => {
     try{
         let token
@@ -22,7 +29,7 @@ const protect = (req,res,next) => {
             return response(res, 404, false, null,"server need token")
         }
     } catch(err) {
-        console.log(err)
+        console.log(err) 
         if(err && err.name == 'JsonWebTokenError'){
             return response(res, 404, false, null,"invalid token")
         } else if (err && err.name == 'TokenExpriredError'){
@@ -33,4 +40,4 @@ const protect = (req,res,next) => {
     }
 }
 // module.exports = {role}
-module.exports = {role,protect}
+module.exports = {role,protect,roleToko}

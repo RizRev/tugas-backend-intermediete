@@ -1,4 +1,6 @@
 const ModelCategory = require('./../model/category')
+const { response } = require("../middleware/common");
+
 
 const CategoryController = {
     update: (req,res,next)=>{
@@ -17,9 +19,22 @@ const CategoryController = {
         .catch(err=> res.send({message:'error',err}))
     },
     insert: (req,res,next)=>{
-        ModelCategory.insertData(req.body)
-        .then(result=> res.send({status:200,message: `berhasil memasukan data`}))
-        .catch(err=> res.send({message:'error',err}))
+        try {
+            const users_id = req.payload.id;
+            const name = req.body.name
+            const data = {users_id,name};
+            result = ModelCategory.insertData(data);
+            response(
+                res,
+                200,
+                true,
+                result,
+                "Insert category success"
+              );
+        } catch (err) {
+            console.log(err);
+      response(res, 404, false, err, "insert category failed");
+        }
     }
 }
 

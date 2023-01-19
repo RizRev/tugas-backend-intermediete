@@ -1,7 +1,7 @@
 const ModelProduct = require("../model/products");
 const { response } = require("../middleware/common");
 require("dotenv").config();
-const client = require("../config/redis")
+// const client = require("../config/redis")
 //     update: (req,res,next)=>{
 // const ProductController = {
 //         ModelProduct.updateData(req.params.id,req.body)
@@ -60,8 +60,22 @@ const client = require("../config/redis")
 
 const ProductController = {
     update: (req,res,next)=>{
-        ModelProduct.updateData(req.params.id,req.body)
-        .then(result=> res.send({status:200,message: `berhasil mengubah data`}))
+        const id = req.params.id;
+        const {
+            photo: [photo],
+          } = req.files;
+          req.body.photo = photo;
+          const {name,category_id,stock,price,} = req.body
+          data = {
+            //   id,
+              photo: photo.path,
+              name,
+              category_id,
+              stock,
+              price
+          }
+        ModelProduct.updateData(id,data)
+        .then((result) => response(res, 200, true, result.rows,"delete data success"))
         .catch(err=> res.send({message:'error',err}))
     },
     delete: (req,res,next)=>{
@@ -79,34 +93,59 @@ const ProductController = {
     //     .catch((err) => response(res, false, 404, err,"get data fail"));
     // },
     getProduct: (req,res,next)=>{ 
+        const users_id = req.payload.id
         const sortby = req.query.sortby || 'id'
         const sort = req.query.sort || 'asc'
         const page = req.query.page || 1
         const limit = req.query.limit || 5
         const search = req.query.search || ''
         console.log(req.query)
-        ModelProduct.selectData(sortby,sort,page,limit,search)
+        ModelProduct.selectData(sortby,sort,page,limit,search
+            // ,users_id
+            )
         .then((result) => response(res, 200, true, result.rows,"get data success"))
         .catch((err) => response(res, 404, false, err.routine,"get data fail"));
     },
     insert: (req,res,next)=>{
-        const Port = process.env.PORT
-        const Host = process.env.HOST
-        const photo = req.file.filename
-        // const uri = `http://localhost:4000/img/${photo}`
-        const uri = `http://${Host}:${Port}/img/${photo}`
-        req.body.photo = uri
-        ModelProduct.insertData(req.body)
-        .then((result) => response(res, 200, true, result.rows,"insert data success"))
+        const users_id = req.payload.id
+        const {
+            photo: [photo],
+          } = req.files;
+          req.body.photo = photo.path;
+        const {name,category_id,stock,price,} = req.body
+        data = {
+            users_id,
+            photo: photo.path,
+            name,
+            category_id,
+            stock,
+            price
+        }
+        ModelProduct.insertData(data)
+        .then((result) => response(res, 200, true, data,"insert data success"))
         .catch((err) => response(res, 404, false, err,"insert data fail"));
     },
     getProductDetail: (req,res,next)=>{ 
         ModelProduct.selectDatabyId(req.params.id)
         .then((result) => {
-        client.setEx(`product/${req.params.id}`,60*60,JSON.stringify(result.rows))
+        // client.setEx(`product/${req.params.id}`,60*60,JSON.stringify(result.rows))
         response(res, 200, true, result.rows,"get data detail success")})
         .catch((err) => response(res, 404, false, err.routine,"get data detail fail"));
-    },}
+    },getProductSeller: (req,res,next)=>{ 
+        const users_id = req.payload.id
+        const sortby = req.query.sortby || 'id'
+        const sort = req.query.sort || 'asc'
+        const page = req.query.page || 1
+        const limit = req.query.limit || 5
+        const search = req.query.search || ''
+        console.log(req.query)
+        const data = {sortby,sort,page,limit,search}
+        console.log(id)
+        ModelProduct.selectDataSeller(users_id)
+        .then((result) => response(res, 200, true, result.rows,"get data success"))
+        .catch((err) => response(res, 404, false, err,"get data fail"));
+    }
+}
 
     exports.ProductController = ProductController
 
